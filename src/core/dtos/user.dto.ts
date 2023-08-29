@@ -22,7 +22,19 @@ export class CreateUserDto {
 
 export class UpdateUserDto extends PartialType(CreateUserDto) {}
 
+export class LoginUserDto {
+  @IsEmail()
+  @IsNotEmpty()
+  email: string;
+
+  @IsString()
+  @IsNotEmpty()
+  password: string;
+}
+
 export class CreateUserResponseDto {
   success: boolean;
   user: Partial<User>;
 }
+
+export class LoginUserResponseDto extends CreateUserResponseDto {}
