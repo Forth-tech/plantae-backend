@@ -37,4 +37,6 @@ export class CreateUserResponseDto {
   user: Partial<User>;
 }
 
-export class LoginUserResponseDto extends CreateUserResponseDto {}
+export class LoginUserResponseDto extends CreateUserResponseDto {
+  access_token: string;
+}
