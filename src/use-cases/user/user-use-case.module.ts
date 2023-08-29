@@ -1,0 +1,11 @@
+import { Module } from '@nestjs/common';
+import { PrismaDataServiceModule } from 'src/frameworks/data-services/prisma.module';
+import { UserFactoryService } from './user-factory.service';
+import { UserUseCases } from './user.use-case';
+
+@Module({
+  imports: [PrismaDataServiceModule],
+  providers: [UserFactoryService, UserUseCases],
+  exports: [UserFactoryService, UserUseCases],
+})
+export class UserUseCasesModule {}
