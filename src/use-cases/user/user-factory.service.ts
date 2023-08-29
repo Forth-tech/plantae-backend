@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { genSalt, hash } from 'bcrypt';
-import { CreateUserDto } from 'src/core/dtos/user.dto';
+import { CreateUserDto, LoginUserDto } from 'src/core/dtos/user.dto';
 import { User } from 'src/core/entities/user.entity';
 
 @Injectable()
@@ -17,4 +17,5 @@ export class UserFactoryService {
 
     return newUser;
   }
+
 }

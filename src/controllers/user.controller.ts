@@ -1,5 +1,21 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
-import { CreateUserDto, CreateUserResponseDto } from 'src/core/dtos/user.dto';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Request,
+  UseGuards,
+} from '@nestjs/common';
+import { IAuthServices } from 'src/core/abstracts/auth-services.abstract';
+import {
+  CreateUserDto,
+  CreateUserResponseDto,
+  LoginUserDto,
+  LoginUserResponseDto,
+} from 'src/core/dtos/user.dto';
+import { JwtAuthGuard } from 'src/core/guards/jwt-auth.guard';
+import { LocalAuthGuard } from 'src/core/guards/local-auth.guard';
 import { UserFactoryService } from 'src/use-cases/user/user-factory.service';
 import { UserUseCases } from 'src/use-cases/user/user.use-case';
 
@@ -8,11 +24,13 @@ export class UserController {
   constructor(
     private userUseCases: UserUseCases,
     private userFactoryService: UserFactoryService,
+    private authService: IAuthServices,
   ) {}
 
-  @Get(':id')
-  async getById(@Param('id') id: any) {
-    return this.userUseCases.getUserById(id);
+  @UseGuards(JwtAuthGuard)
+  @Get('profile')
+  async getById(@Request() req) {
+    return this.userUseCases.getUserById(req.user.id);
   }
 
   @Post()
@@ -32,5 +50,24 @@ export class UserController {
     }
 
     return createUserResponse;
+  }
+
+  @UseGuards(LocalAuthGuard)
+  @Post('/login')
+  async login(
+    @Body() body: LoginUserDto,
+    @Request() req,
+  ): Promise<LoginUserResponseDto> {
+    const loginUserRespon = new LoginUserResponseDto();
+
+    try {
+      const { access_token } = await this.authService.login(req.user);
+      loginUserRespon.user = req.user;
+      loginUserRespon.success = true;
+      loginUserRespon.access_token = access_token;
+    } catch (error) {
+      loginUserRespon.success = false;
+    }
+    return loginUserRespon;
   }
 }
