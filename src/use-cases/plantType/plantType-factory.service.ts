@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { CreatePlantTypeDto } from 'src/core/dtos/plantType.dto';
-import { PlantType } from 'src/core/entities/plantType.entity';
+import { PlantType } from '../../core/entities/plantType.entity';
 
 @Injectable()
 export class PlantTypeFactory {
