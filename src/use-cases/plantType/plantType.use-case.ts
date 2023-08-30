@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { PlantType } from 'src/core/entities/plantType.entity';
-import { PrismaService } from 'src/frameworks/data-services/prisma.service';
+import { PlantType } from '../../core/entities/plantType.entity';
+import { PrismaService } from '../../frameworks/data-services/prisma.service';
 
 @Injectable()
 export class PlantTypeUseCases {
   constructor(private dataServices: PrismaService) {}
 
-  async getPlantTypeById(id: string): Promise<PlantType> {
+  async getPlantTypeById(id: string): Promise<PlantType | null> {
     return await this.dataServices.plantType.findUnique({
       where: { ID_PlantType: id },
       select: {
