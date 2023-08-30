@@ -19,3 +19,23 @@ model User {
   hash       String
   hashedPass String
 }
+
+model PlantType {
+  ID_PlantType   String                 @id @default(uuid())
+  popularNames   PlantTypePopularName[]
+  scientificName String
+  createdAt      DateTime               @default(now())
+  updatedAt      DateTime               @updatedAt
+  imageUrl       String?
+}
+
+model PlantTypePopularName {
+  ID_PlantTypePopularName String    @id @default(uuid())
+  ID_PlantType            String
+  PlantType               PlantType @relation(fields: [ID_PlantType], references: [ID_PlantType])
+  popularName             String
+  createdAt               DateTime  @default(now())
+  updatedAt               DateTime  @updatedAt
+
+  @@unique([ID_PlantType, popularName])
+}
