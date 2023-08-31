@@ -10,11 +10,11 @@ export class UserUseCases {
     private authServices: IAuthServices,
   ) {}
 
-  getUserById(id: any): Promise<User> {
+  getUserById(id: any): Promise<User | null> {
     return this.dataServices.user.findUnique({ where: { id: id } });
   }
 
-  getUserByEmail(email: string): Promise<User> {
+  getUserByEmail(email: string): Promise<User | null> {
     return this.dataServices.user.findUnique({ where: { email: email } });
   }
 
