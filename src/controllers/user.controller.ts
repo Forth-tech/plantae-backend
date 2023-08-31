@@ -7,23 +7,33 @@ import {
   Request,
   UseGuards,
 } from '@nestjs/common';
-import { IAuthServices } from 'src/core/abstracts/auth-services.abstract';
+import { IAuthServices } from '../core/abstracts/auth-services.abstract';
 import {
   CreateUserDto,
   CreateUserResponseDto,
   LoginUserDto,
   LoginUserResponseDto,
-} from 'src/core/dtos/user.dto';
-import { JwtAuthGuard } from 'src/core/guards/jwt-auth.guard';
-import { LocalAuthGuard } from 'src/core/guards/local-auth.guard';
-import { UserFactoryService } from 'src/use-cases/user/user-factory.service';
-import { UserUseCases } from 'src/use-cases/user/user.use-case';
+} from '../core/dtos/user.dto';
+import {
+  CreateUserPlantDto,
+  CreateUserPlantResponseDto,
+  GetUserPlantByIdResponseDto,
+  GetUserPlantsResponseDto,
+} from '../core/dtos/userPlant.dto';
+import { JwtAuthGuard } from '../core/guards/jwt-auth.guard';
+import { LocalAuthGuard } from '../core/guards/local-auth.guard';
+import { UserFactoryService } from '../use-cases/user/user-factory.service';
+import { UserUseCases } from '../use-cases/user/user.use-case';
+import { UserPlantFactoryService } from '../use-cases/userPlant/userPlant-factory.service';
+import { UserPlantUseCases } from '../use-cases/userPlant/userPlant.use-case';
 
 @Controller('/user')
 export class UserController {
   constructor(
     private userUseCases: UserUseCases,
     private userFactoryService: UserFactoryService,
+    private userPlantUseCases: UserPlantUseCases,
+    private userPlantFactoryService: UserPlantFactoryService,
     private authService: IAuthServices,
   ) {}
 
@@ -69,5 +79,72 @@ export class UserController {
       loginUserRespon.success = false;
     }
     return loginUserRespon;
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('/plant')
+  async createUserPlant(
+    @Body() body: CreateUserPlantDto,
+    @Request() req,
+  ): Promise<CreateUserPlantResponseDto> {
+    const createUserPlantResponse = new CreateUserPlantResponseDto();
+
+    try {
+      const userPlant = this.userPlantFactoryService.createNewUserPlant(
+        req.user.id,
+        body,
+      );
+      const createdUserPlant = await this.userPlantUseCases.createPlantType(
+        userPlant,
+      );
+
+      createUserPlantResponse.success = true;
+      createUserPlantResponse.userPlant = createdUserPlant;
+    } catch (error) {
+      createUserPlantResponse.success = false;
+    }
+
+    return createUserPlantResponse;
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('/plant/:id')
+  async getUserPlantById(
+    @Param('id') id: string,
+    @Request() req,
+  ): Promise<GetUserPlantByIdResponseDto> {
+    const getPlantUserResponse = new GetUserPlantByIdResponseDto();
+
+    try {
+      const userPlant = await this.userPlantUseCases.getUserPlantById(id);
+
+      if (!userPlant || userPlant?.ID_User === req.user.id) {
+        getPlantUserResponse.success = false;
+      } else {
+        getPlantUserResponse.success = true;
+        getPlantUserResponse.userPlant = userPlant;
+      }
+    } catch (error) {
+      getPlantUserResponse.success = false;
+    }
+
+    return getPlantUserResponse;
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('/plant')
+  async getUserPlants(@Request() req): Promise<GetUserPlantsResponseDto> {
+    const getPlantUserResponse = new GetUserPlantsResponseDto();
+
+    try {
+      const userPlant = await this.userPlantUseCases.getUserPlants(req.user.id);
+
+      getPlantUserResponse.success = true;
+      getPlantUserResponse.userPlants = userPlant;
+    } catch (error) {
+      getPlantUserResponse.success = false;
+    }
+
+    return getPlantUserResponse;
   }
 }

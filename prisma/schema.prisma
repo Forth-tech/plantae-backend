@@ -11,13 +11,14 @@ datasource db {
 }
 
 model User {
-  id         String   @id @default(uuid())
-  createdAt  DateTime @default(now())
+  id         String      @id @default(uuid())
+  createdAt  DateTime    @default(now())
   firstName  String
   lastName   String
-  email      String   @unique
+  email      String      @unique
   hash       String
   hashedPass String
+  UserPlant  UserPlant[]
 }
 
 model PlantType {
@@ -27,6 +28,7 @@ model PlantType {
   createdAt      DateTime               @default(now())
   updatedAt      DateTime               @updatedAt
   imageUrl       String?
+  UserPlant      UserPlant[]
 }
 
 model PlantTypePopularName {
@@ -38,4 +40,48 @@ model PlantTypePopularName {
   updatedAt               DateTime  @updatedAt
 
   @@unique([ID_PlantType, popularName])
+}
+
+model UserPlant {
+  ID_UserPLant  String    @id @default(uuid())
+  ID_User       String
+  user          User      @relation(fields: [ID_User], references: [id])
+  ID_PlantType  String
+  plantType     PlantType @relation(fields: [ID_PlantType], references: [ID_PlantType])
+  purchasedDate DateTime?
+  name          String
+  ID_Watering   String
+  watering      Watering  @relation(fields: [ID_Watering], references: [ID_Watering])
+  ID_Feeding    String
+  feeding       Feeding   @relation(fields: [ID_Feeding], references: [ID_Feeding])
+}
+
+model Watering {
+  ID_Watering String         @id @default(uuid())
+  period      WateringPeriod
+  volume      Int
+  UserPlant   UserPlant[]
+}
+
+model Feeding {
+  ID_Feeding String        @id @default(uuid())
+  period     FeedingPeriod
+  quantity   Int
+  UserPlant  UserPlant[]
+}
+
+enum WateringPeriod {
+  DAILY
+  EVERYOTHER
+  WEEKLY
+  BIWEEKLY
+  MONTHLY
+}
+
+enum FeedingPeriod {
+  WEEKLY
+  BIWEEKLY
+  MONTHLY
+  BIMONTHLY
+  TRI
 }
