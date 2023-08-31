@@ -14,7 +14,7 @@ export class PassportService implements IAuthServices {
     const user = await this.dataService.user.findUnique({
       where: { email: username },
     });
-    if (await compare(password, user.hashedPass)) {
+    if (user && (await compare(password, user.hashedPass))) {
       const { hashedPass, hash, ...result } = user;
       return result;
     }
