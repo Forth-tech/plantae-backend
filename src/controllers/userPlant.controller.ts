@@ -105,7 +105,7 @@ export class UserPlantController {
 
     try {
       const userPlantNoteFact =
-        await this.userPlantNotesFactory.createNewUserPlantNote(id, body);
+        this.userPlantNotesFactory.createNewUserPlantNote(id, body);
       const userPlantNote =
         await this.userPlantNotesUseCase.createUserPlantNote(userPlantNoteFact);
       if (!userPlantNote) {
