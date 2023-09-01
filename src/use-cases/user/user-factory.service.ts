@@ -17,5 +17,4 @@ export class UserFactoryService {
 
     return newUser;
   }
-
 }
