@@ -4,7 +4,7 @@ import { AppService } from './app.service';
 import { PrismaDataServiceModule } from './frameworks/data-services/prisma.module';
 import { UserController } from './controllers/user.controller';
 import { UserUseCasesModule } from './use-cases/user/user-use-case.module';
-import { PassportServiceModule } from './frameworks/auth-services.ts/passport/passport-service.module';
+import { PassportServiceModule } from './frameworks/auth-services/passport/passport-service.module';
 import { LoggerModule } from 'nestjs-pino';
 import { PlantTypeController } from './controllers/plantType.controller';
 import { PlantTypeUseCasesModule } from './use-cases/plantType/plantType-use-case.module';

@@ -1,12 +1,17 @@
 import {
   Body,
   Controller,
+  FileTypeValidator,
   Get,
   Param,
+  ParseFilePipe,
   Post,
   Req,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import {
   CreateUserPlantNoteDto,
   CreateUserPlantNoteResponseDto,
@@ -118,5 +123,21 @@ export class UserPlantController {
       createUserPlantNoteResponse.success = false;
     }
     return createUserPlantNoteResponse;
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('/:id/image')
+  @UseInterceptors(FileInterceptor('image'))
+  async uploadPlantImage(
+    @Body() body,
+    @Req() req,
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [new FileTypeValidator({ fileType: 'image/jpeg' })],
+      }),
+    )
+    image: Express.Multer.File,
+  ) {
+    return true;
   }
 }
