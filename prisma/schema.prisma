@@ -55,6 +55,7 @@ model UserPlant {
   ID_Feeding        String
   feeding           Feeding             @relation(fields: [ID_Feeding], references: [ID_Feeding])
   UserPlantNote     UserPlantNote[]
+  UserPlantImage    UserPlantImage[]
   UserPlantWatering UserPlantWatering[]
 }
 
@@ -78,6 +79,14 @@ model UserPlantNote {
   ID_UserPlant     String
   note             String
   date             DateTime
+}
+
+model UserPlantImage {
+  ID_UserPlantImage String    @id @default(uuid())
+  userPlant         UserPlant @relation(fields: [ID_UserPlant], references: [ID_UserPLant])
+  ID_UserPlant      String
+  imageUrl          String
+  date              DateTime  @default(now())
 }
 
 model UserPlantWatering {

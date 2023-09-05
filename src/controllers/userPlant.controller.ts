@@ -1,34 +1,45 @@
 import {
   Body,
   Controller,
+  FileTypeValidator,
   Get,
   Param,
+  ParseFilePipe,
   Post,
   Req,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import {
+  CreateUserPlantImageResponseDto,
+  GetUserPlantImageResponseDto,
+} from '../core/dtos/userPlantImage.dto';
 import {
   CreateUserPlantNoteDto,
   CreateUserPlantNoteResponseDto,
   GetUserPlantNoteResponseDto,
   GetUserPlantNotesResponseDto,
-} from 'src/core/dtos/userPlantNotes.dto';
+} from '../core/dtos/userPlantNotes.dto';
 import {
   CreateUserPlantWateringDto,
   CreateUserPlantWateringResponseDto,
   GetUserPlantWateringsResponseDto,
-} from 'src/core/dtos/userPlantWatering.dto';
-import { JwtAuthGuard } from 'src/core/guards/jwt-auth.guard';
-import { UserPlantNotesFactoryService } from 'src/use-cases/userPlantNotes/userPlantNotes-factory.service';
-import { UserPlantNotesUseCases } from 'src/use-cases/userPlantNotes/userPlantNotes.use-case';
-import { UserPlantWateringFactoryService } from 'src/use-cases/userPlantWatering/userPlantWatering.factory';
-import { UserPlantWateringUseCases } from 'src/use-cases/userPlantWatering/userPlantWatering.use-case';
+} from '../core/dtos/userPlantWatering.dto';
+import { JwtAuthGuard } from '../core/guards/jwt-auth.guard';
+import { UserPlantImageUseCases } from '../use-cases/userPlantImage/userPlantImage.use-case';
+import { UserPlantNotesFactoryService } from '../use-cases/userPlantNotes/userPlantNotes-factory.service';
+import { UserPlantNotesUseCases } from '../use-cases/userPlantNotes/userPlantNotes.use-case';
+import { UserPlantWateringFactoryService } from '../use-cases/userPlantWatering/userPlantWatering.factory';
+import { UserPlantWateringUseCases } from '../use-cases/userPlantWatering/userPlantWatering.use-case';
 
 @Controller('/user/plant')
 export class UserPlantController {
   constructor(
     private userPlantNotesUseCase: UserPlantNotesUseCases,
     private userPlantNotesFactory: UserPlantNotesFactoryService,
+    private userPlantImageUseCase: UserPlantImageUseCases,
     private userPlantWateringUseCase: UserPlantWateringUseCases,
     private userPlantWateringFactory: UserPlantWateringFactoryService,
   ) {}
@@ -130,6 +141,61 @@ export class UserPlantController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @Post('/:id/image')
+  @UseInterceptors(FileInterceptor('image'))
+  async uploadPlantImage(
+    @Param('id') id: string,
+    @Req() req,
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [new FileTypeValidator({ fileType: 'image/jpeg' })],
+      }),
+    )
+    image: Express.Multer.File,
+  ) {
+    const createPlantImageResponse = new CreateUserPlantImageResponseDto();
+
+    try {
+      const userPlantImage =
+        await this.userPlantImageUseCase.uploadUserPlantImage(
+          id,
+          req.user.id,
+          image,
+        );
+      if (userPlantImage) {
+        createPlantImageResponse.success = true;
+        createPlantImageResponse.plantImage = userPlantImage;
+      } else {
+        createPlantImageResponse.success = false;
+      }
+    } catch (error) {
+      createPlantImageResponse.success = false;
+    }
+    return createPlantImageResponse;
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('/:id/image')
+  async getPlantImages(@Param('id') id: string, @Req() req) {
+    const getUserPlantImages = new GetUserPlantImageResponseDto();
+
+    try {
+      const userPlantImage =
+        await this.userPlantImageUseCase.getUserPlantImagesByPlantId(
+          id,
+          req.user.id,
+        );
+      if (userPlantImage) {
+        getUserPlantImages.success = true;
+        getUserPlantImages.plantImages = userPlantImage;
+      } else {
+        getUserPlantImages.success = false;
+      }
+    } catch (error) {
+      getUserPlantImages.success = false;
+    }
+    return getUserPlantImages;
+  }
   @Get('/:id/watering')
   async getUserPlantWaterings(@Param('id') id: string, @Req() req) {
     const getUserPlantWateringResponse = new GetUserPlantWateringsResponseDto();
