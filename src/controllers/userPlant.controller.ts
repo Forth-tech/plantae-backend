@@ -13,12 +13,17 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
+  CreateUserPlantImageResponseDto,
+  GetUserPlantImageResponseDto,
+} from 'src/core/dtos/userPlantImage.dto';
+import {
   CreateUserPlantNoteDto,
   CreateUserPlantNoteResponseDto,
   GetUserPlantNoteResponseDto,
   GetUserPlantNotesResponseDto,
 } from 'src/core/dtos/userPlantNotes.dto';
 import { JwtAuthGuard } from 'src/core/guards/jwt-auth.guard';
+import { UserPlantImageUseCases } from 'src/use-cases/userPlantImage/userPlantImage.use-case';
 import { UserPlantNotesFactoryService } from 'src/use-cases/userPlantNotes/userPlantNotes-factory.service';
 import { UserPlantNotesUseCases } from 'src/use-cases/userPlantNotes/userPlantNotes.use-case';
 
@@ -27,6 +32,7 @@ export class UserPlantController {
   constructor(
     private userPlantNotesUseCase: UserPlantNotesUseCases,
     private userPlantNotesFactory: UserPlantNotesFactoryService,
+    private userPlantImageUseCase: UserPlantImageUseCases,
   ) {}
 
   @UseGuards(JwtAuthGuard)
@@ -129,7 +135,7 @@ export class UserPlantController {
   @Post('/:id/image')
   @UseInterceptors(FileInterceptor('image'))
   async uploadPlantImage(
-    @Body() body,
+    @Param('id') id: string,
     @Req() req,
     @UploadedFile(
       new ParseFilePipe({
@@ -138,6 +144,47 @@ export class UserPlantController {
     )
     image: Express.Multer.File,
   ) {
-    return true;
+    const createPlantImageResponse = new CreateUserPlantImageResponseDto();
+
+    try {
+      const userPlantImage =
+        await this.userPlantImageUseCase.uploadUserPlantImage(
+          id,
+          req.user.id,
+          image,
+        );
+      if (userPlantImage) {
+        createPlantImageResponse.success = true;
+        createPlantImageResponse.plantImage = userPlantImage;
+      } else {
+        createPlantImageResponse.success = false;
+      }
+    } catch (error) {
+      createPlantImageResponse.success = false;
+    }
+    return createPlantImageResponse;
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('/:id/image')
+  async getPlantImages(@Param('id') id: string, @Req() req) {
+    const getUserPlantImages = new GetUserPlantImageResponseDto();
+
+    try {
+      const userPlantImage =
+        await this.userPlantImageUseCase.getUserPlantImagesByPlantId(
+          id,
+          req.user.id,
+        );
+      if (userPlantImage) {
+        getUserPlantImages.success = true;
+        getUserPlantImages.plantImages = userPlantImage;
+      } else {
+        getUserPlantImages.success = false;
+      }
+    } catch (error) {
+      getUserPlantImages.success = false;
+    }
+    return getUserPlantImages;
   }
 }

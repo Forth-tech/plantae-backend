@@ -85,7 +85,7 @@ model UserPlantImage {
   userPlant         UserPlant @relation(fields: [ID_UserPlant], references: [ID_UserPLant])
   ID_UserPlant      String
   imageUrl          String
-  date              DateTime
+  date              DateTime  @default(now())
 }
 
 enum WateringPeriod {

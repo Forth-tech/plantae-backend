@@ -9,6 +9,9 @@ import { LoggerModule } from 'nestjs-pino';
 import { PlantTypeController } from './controllers/plantType.controller';
 import { PlantTypeUseCasesModule } from './use-cases/plantType/plantType-use-case.module';
 import { UserPlantUseCasesModule } from './use-cases/userPlant/userPlant-use-case.module';
+import { UserPlantNotesUseCasesModule } from './use-cases/userPlantNotes/userPlantNotes-use-case.module';
+import { UserPlantImageUseCasesModule } from './use-cases/userPlantImage/userPlantImage-use-case.module';
+import { UserPlantController } from './controllers/userPlant.controller';
 
 @Module({
   imports: [
@@ -17,6 +20,8 @@ import { UserPlantUseCasesModule } from './use-cases/userPlant/userPlant-use-cas
     UserUseCasesModule,
     PlantTypeUseCasesModule,
     UserPlantUseCasesModule,
+    UserPlantNotesUseCasesModule,
+    UserPlantImageUseCasesModule,
     LoggerModule.forRoot({
       pinoHttp: {
         customProps: (req, res) => ({
@@ -31,7 +36,12 @@ import { UserPlantUseCasesModule } from './use-cases/userPlant/userPlant-use-cas
       },
     }),
   ],
-  controllers: [AppController, UserController, PlantTypeController],
+  controllers: [
+    AppController,
+    UserController,
+    PlantTypeController,
+    UserPlantController,
+  ],
   providers: [AppService],
 })
 export class AppModule {}

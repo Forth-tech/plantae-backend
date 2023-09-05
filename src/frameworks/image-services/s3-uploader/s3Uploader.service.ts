@@ -1,5 +1,5 @@
 import { S3 } from 'aws-sdk';
-import { IUploaderService } from 'src/core/abstracts/uploader-services.abstract';
+import { IUploaderService } from '../../../core/abstracts/uploader-services.abstract';
 
 export class S3UploaderService extends IUploaderService {
   params: S3.PutObjectRequest;
