@@ -12,6 +12,7 @@ import { UserPlantUseCasesModule } from './use-cases/userPlant/userPlant-use-cas
 import { UserPlantNotesUseCasesModule } from './use-cases/userPlantNotes/userPlantNotes-use-case.module';
 import { UserPlantImageUseCasesModule } from './use-cases/userPlantImage/userPlantImage-use-case.module';
 import { UserPlantController } from './controllers/userPlant.controller';
+import { UserPlantWateringUseCasesModule } from './use-cases/userPlantWatering/userPlantWatering-use-case.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { UserPlantController } from './controllers/userPlant.controller';
     UserPlantUseCasesModule,
     UserPlantNotesUseCasesModule,
     UserPlantImageUseCasesModule,
+    UserPlantWateringUseCasesModule,
     LoggerModule.forRoot({
       pinoHttp: {
         customProps: (req, res) => ({

@@ -15,17 +15,24 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import {
   CreateUserPlantImageResponseDto,
   GetUserPlantImageResponseDto,
-} from 'src/core/dtos/userPlantImage.dto';
+} from '../core/dtos/userPlantImage.dto';
 import {
   CreateUserPlantNoteDto,
   CreateUserPlantNoteResponseDto,
   GetUserPlantNoteResponseDto,
   GetUserPlantNotesResponseDto,
-} from 'src/core/dtos/userPlantNotes.dto';
-import { JwtAuthGuard } from 'src/core/guards/jwt-auth.guard';
-import { UserPlantImageUseCases } from 'src/use-cases/userPlantImage/userPlantImage.use-case';
-import { UserPlantNotesFactoryService } from 'src/use-cases/userPlantNotes/userPlantNotes-factory.service';
-import { UserPlantNotesUseCases } from 'src/use-cases/userPlantNotes/userPlantNotes.use-case';
+} from '../core/dtos/userPlantNotes.dto';
+import {
+  CreateUserPlantWateringDto,
+  CreateUserPlantWateringResponseDto,
+  GetUserPlantWateringsResponseDto,
+} from '../core/dtos/userPlantWatering.dto';
+import { JwtAuthGuard } from '../core/guards/jwt-auth.guard';
+import { UserPlantImageUseCases } from '../use-cases/userPlantImage/userPlantImage.use-case';
+import { UserPlantNotesFactoryService } from '../use-cases/userPlantNotes/userPlantNotes-factory.service';
+import { UserPlantNotesUseCases } from '../use-cases/userPlantNotes/userPlantNotes.use-case';
+import { UserPlantWateringFactoryService } from '../use-cases/userPlantWatering/userPlantWatering.factory';
+import { UserPlantWateringUseCases } from '../use-cases/userPlantWatering/userPlantWatering.use-case';
 
 @Controller('/user/plant')
 export class UserPlantController {
@@ -33,6 +40,8 @@ export class UserPlantController {
     private userPlantNotesUseCase: UserPlantNotesUseCases,
     private userPlantNotesFactory: UserPlantNotesFactoryService,
     private userPlantImageUseCase: UserPlantImageUseCases,
+    private userPlantWateringUseCase: UserPlantWateringUseCases,
+    private userPlantWateringFactory: UserPlantWateringFactoryService,
   ) {}
 
   @UseGuards(JwtAuthGuard)
@@ -186,5 +195,58 @@ export class UserPlantController {
       getUserPlantImages.success = false;
     }
     return getUserPlantImages;
+  }
+  @Get('/:id/watering')
+  async getUserPlantWaterings(@Param('id') id: string, @Req() req) {
+    const getUserPlantWateringResponse = new GetUserPlantWateringsResponseDto();
+
+    try {
+      const userPlantWatering =
+        await this.userPlantWateringUseCase.getUserPlantWateringByUserPlant(
+          id,
+          req.user.id,
+        );
+      if (userPlantWatering) {
+        getUserPlantWateringResponse.success = true;
+        getUserPlantWateringResponse.plantWaterings = userPlantWatering;
+      } else {
+        getUserPlantWateringResponse.success = false;
+      }
+    } catch (error) {
+      getUserPlantWateringResponse.success = false;
+    }
+
+    return getUserPlantWateringResponse;
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('/:id/watering')
+  async createUserPlantWatering(
+    @Param('id') id: string,
+    @Body() body: CreateUserPlantWateringDto,
+    @Req() req,
+  ) {
+    const createUserPlantWateringResponse =
+      new CreateUserPlantWateringResponseDto();
+
+    try {
+      const userPlantWatering =
+        this.userPlantWateringFactory.createNewUserPlantWatering(id, body);
+      const createdUserPlantWatering =
+        await this.userPlantWateringUseCase.createUserPlantWatering(
+          userPlantWatering,
+        );
+      if (createdUserPlantWatering) {
+        createUserPlantWateringResponse.success = true;
+        createUserPlantWateringResponse.plantWatering =
+          createdUserPlantWatering;
+      } else {
+        createUserPlantWateringResponse.success = false;
+      }
+    } catch (error) {
+      createUserPlantWateringResponse.success = false;
+    }
+
+    return createUserPlantWateringResponse;
   }
 }

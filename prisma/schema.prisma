@@ -43,19 +43,20 @@ model PlantTypePopularName {
 }
 
 model UserPlant {
-  ID_UserPLant   String           @id @default(uuid())
-  ID_User        String
-  user           User             @relation(fields: [ID_User], references: [id])
-  ID_PlantType   String
-  plantType      PlantType        @relation(fields: [ID_PlantType], references: [ID_PlantType])
-  purchasedDate  DateTime?
-  name           String
-  ID_Watering    String
-  watering       Watering         @relation(fields: [ID_Watering], references: [ID_Watering])
-  ID_Feeding     String
-  feeding        Feeding          @relation(fields: [ID_Feeding], references: [ID_Feeding])
-  UserPlantNote  UserPlantNote[]
-  UserPlantImage UserPlantImage[]
+  ID_UserPLant      String              @id @default(uuid())
+  ID_User           String
+  user              User                @relation(fields: [ID_User], references: [id])
+  ID_PlantType      String
+  plantType         PlantType           @relation(fields: [ID_PlantType], references: [ID_PlantType])
+  purchasedDate     DateTime?
+  name              String
+  ID_Watering       String
+  watering          Watering            @relation(fields: [ID_Watering], references: [ID_Watering])
+  ID_Feeding        String
+  feeding           Feeding             @relation(fields: [ID_Feeding], references: [ID_Feeding])
+  UserPlantNote     UserPlantNote[]
+  UserPlantImage    UserPlantImage[]
+  UserPlantWatering UserPlantWatering[]
 }
 
 model Watering {
@@ -86,6 +87,14 @@ model UserPlantImage {
   ID_UserPlant      String
   imageUrl          String
   date              DateTime  @default(now())
+}
+
+model UserPlantWatering {
+  ID_UserPlantWatering String    @id @default(uuid())
+  userPlant            UserPlant @relation(fields: [ID_UserPlant], references: [ID_UserPLant])
+  ID_UserPlant         String
+  volume               Int
+  date                 DateTime
 }
 
 enum WateringPeriod {
