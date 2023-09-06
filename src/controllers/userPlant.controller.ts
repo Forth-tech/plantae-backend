@@ -33,6 +33,13 @@ import { UserPlantNotesFactoryService } from '../use-cases/userPlantNotes/userPl
 import { UserPlantNotesUseCases } from '../use-cases/userPlantNotes/userPlantNotes.use-case';
 import { UserPlantWateringFactoryService } from '../use-cases/userPlantWatering/userPlantWatering.factory';
 import { UserPlantWateringUseCases } from '../use-cases/userPlantWatering/userPlantWatering.use-case';
+import {
+  CreateUserPlantNutritionDto,
+  CreateUserPlantNutritionResponseDto,
+  GetUserPlantNutritionsResponseDto,
+} from 'src/core/dtos/userPlantNutrition.dto';
+import { UserPlantNutritionUseCases } from 'src/use-cases/userPlantNutrition/userPlantNutrition.use-case';
+import { UserPlantNutritionFactoryService } from 'src/use-cases/userPlantNutrition/userPlantNutrition.factory';
 
 @Controller('/user/plant')
 export class UserPlantController {
@@ -42,6 +49,8 @@ export class UserPlantController {
     private userPlantImageUseCase: UserPlantImageUseCases,
     private userPlantWateringUseCase: UserPlantWateringUseCases,
     private userPlantWateringFactory: UserPlantWateringFactoryService,
+    private userPlantNutritionUseCase: UserPlantNutritionUseCases,
+    private userPlantNutritionFactory: UserPlantNutritionFactoryService,
   ) {}
 
   @UseGuards(JwtAuthGuard)
@@ -248,5 +257,60 @@ export class UserPlantController {
     }
 
     return createUserPlantWateringResponse;
+  }
+
+  @Get('/:id/nutrition')
+  async getUserPlantNutritions(@Param('id') id: string, @Req() req) {
+    const getUserPlantNutritionResponse =
+      new GetUserPlantNutritionsResponseDto();
+
+    try {
+      const userPlantNutrition =
+        await this.userPlantNutritionUseCase.getUserPlantNutritionByUserPlant(
+          id,
+          req.user.id,
+        );
+      if (userPlantNutrition) {
+        getUserPlantNutritionResponse.success = true;
+        getUserPlantNutritionResponse.plantNutritions = userPlantNutrition;
+      } else {
+        getUserPlantNutritionResponse.success = false;
+      }
+    } catch (error) {
+      getUserPlantNutritionResponse.success = false;
+    }
+
+    return getUserPlantNutritionResponse;
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('/:id/nutrition')
+  async createUserPlantNutrition(
+    @Param('id') id: string,
+    @Body() body: CreateUserPlantNutritionDto,
+    @Req() req,
+  ) {
+    const createUserPlantNutritionResponse =
+      new CreateUserPlantNutritionResponseDto();
+
+    try {
+      const userPlantNutrition =
+        this.userPlantNutritionFactory.createNewUserPlantNutrition(id, body);
+      const createdUserPlantNutrition =
+        await this.userPlantNutritionUseCase.createUserPlantNutrition(
+          userPlantNutrition,
+        );
+      if (createdUserPlantNutrition) {
+        createUserPlantNutritionResponse.success = true;
+        createUserPlantNutritionResponse.plantNutrition =
+          createdUserPlantNutrition;
+      } else {
+        createUserPlantNutritionResponse.success = false;
+      }
+    } catch (error) {
+      createUserPlantNutritionResponse.success = false;
+    }
+
+    return createUserPlantNutritionResponse;
   }
 }

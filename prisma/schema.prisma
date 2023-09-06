@@ -43,20 +43,21 @@ model PlantTypePopularName {
 }
 
 model UserPlant {
-  ID_UserPLant      String              @id @default(uuid())
-  ID_User           String
-  user              User                @relation(fields: [ID_User], references: [id])
-  ID_PlantType      String
-  plantType         PlantType           @relation(fields: [ID_PlantType], references: [ID_PlantType])
-  purchasedDate     DateTime?
-  name              String
-  ID_Watering       String
-  watering          Watering            @relation(fields: [ID_Watering], references: [ID_Watering])
-  ID_Feeding        String
-  feeding           Feeding             @relation(fields: [ID_Feeding], references: [ID_Feeding])
-  UserPlantNote     UserPlantNote[]
-  UserPlantImage    UserPlantImage[]
-  UserPlantWatering UserPlantWatering[]
+  ID_UserPLant       String               @id @default(uuid())
+  ID_User            String
+  user               User                 @relation(fields: [ID_User], references: [id])
+  ID_PlantType       String
+  plantType          PlantType            @relation(fields: [ID_PlantType], references: [ID_PlantType])
+  purchasedDate      DateTime?
+  name               String
+  ID_Watering        String
+  watering           Watering             @relation(fields: [ID_Watering], references: [ID_Watering])
+  ID_Feeding         String
+  feeding            Feeding              @relation(fields: [ID_Feeding], references: [ID_Feeding])
+  UserPlantNote      UserPlantNote[]
+  UserPlantImage     UserPlantImage[]
+  UserPlantWatering  UserPlantWatering[]
+  UserPlantNutrition UserPlantNutrition[]
 }
 
 model Watering {
@@ -95,6 +96,14 @@ model UserPlantWatering {
   ID_UserPlant         String
   volume               Int
   date                 DateTime
+}
+
+model UserPlantNutrition {
+  ID_UserPlantNutrition String    @id @default(uuid())
+  userPlant             UserPlant @relation(fields: [ID_UserPlant], references: [ID_UserPLant])
+  ID_UserPlant          String
+  quantity              Int
+  date                  DateTime
 }
 
 enum WateringPeriod {
